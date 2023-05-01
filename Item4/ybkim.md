@@ -12,6 +12,6 @@
 - 문자열로 변경 할 표현식은 { } 사이에 입력하며 형식에 맞춰서 사용할 수 있다.
 - 표현식의 형식은 ```{<interpolationExpression>[,<alignment>][:<formatString>]}```를 기준으로 한다.
 
-- 사용 예제 이미지
+<img scr="./photo1.png">
 
 ## 보간 문자열의 Boxing / UnBoxing 방지
