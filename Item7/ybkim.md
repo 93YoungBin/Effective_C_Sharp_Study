@@ -157,15 +157,115 @@ class Program
  c.LegthyOperation(cp);
  // 해당 경우 CheckWithUser가 false더라도 CheckWithSystem이 True면 정상 작동
  ```
+ ↓
  
  ```
  public void LegthyOperation(Func<bool> pred)
  {
-    bool 
+    bool bContinue = true;
     foreach (ComplicatedClass cl in container)
     {
        cl.DoLegthyOperation();
+ 
+       foreach (Func<bool> pr in pred.GetInvocationList())
+          bContinue &= pr();
+ 
        if(pred == false)
        return;
     }
   }
+```
+ 
+ ### Weak Reference
+ - 다중 콜백 함수를 사용 중 콜백함수가 정상적으로 종료되지 않았을 경우 메모리 누수가 발생할 수 있음
+ - 객체를 참조하지만 참조 카운트를 증가시키지 않는 참조.
+ - 객체의 참조가 필요 없어지면 GC에서 자동으로 해제
+ 
+ ```
+ namespace WeakDelegateExample
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var eventPublisher = new EventPublisher();
+
+            // 첫번째 콜백 함수 등록
+            var firstCallback = new EventSubscriber("First callback");
+            eventPublisher.AddCallback(firstCallback.Callback);
+
+            // 두번째 콜백 함수 등록
+            var secondCallback = new EventSubscriber("Second callback");
+            eventPublisher.AddCallback(secondCallback.Callback);
+
+            // 세번째 콜백 함수 등록
+            var thirdCallback = new EventSubscriber("Third callback");
+            eventPublisher.AddCallback(thirdCallback.Callback);
+
+            Console.WriteLine("All callbacks are registered. Starting the event loop...");
+
+            // 이벤트 루프 시작
+            while (eventPublisher.HasCallbacks)
+            {
+                eventPublisher.RaiseEvent();
+
+                // 약한 참조를 이용하여 콜백이 유효한지 확인하고, 콜백이 유효하지 않으면 삭제
+                eventPublisher.RemoveInvalidCallbacks();
+            }
+
+            Console.WriteLine("All callbacks have been invoked and cleared.");
+        }
+    }
+
+    // 콜백을 가진 이벤트 발행자 클래스
+    class EventPublisher
+    {
+        private List<WeakReference<Action>> _callbacks = new List<WeakReference<Action>>();
+
+        // 콜백 등록
+        public void AddCallback(Action callback)
+        {
+            _callbacks.Add(new WeakReference<Action>(callback));
+        }
+
+        // 등록된 모든 콜백 실행
+        public void RaiseEvent()
+        {
+            Console.WriteLine("Event raised.");
+            foreach (var callbackRef in _callbacks)
+            {
+                if (callbackRef.TryGetTarget(out var callback))
+                {
+                    callback.Invoke();
+                }
+            }
+        }
+
+        // 약한 참조를 이용하여 콜백이 유효한지 확인하고, 콜백이 유효하지 않으면 삭제
+        public void RemoveInvalidCallbacks()
+        {
+            _callbacks.RemoveAll(callbackRef => !callbackRef.IsAlive);
+        }
+
+        // 등록된 콜백이 있는지 확인
+        public bool HasCallbacks => _callbacks.Any();
+    }
+
+    // 콜백 함수를 가진 이벤트 구독자 클래스
+    class EventSubscriber
+    {
+        private readonly string _name;
+
+        public EventSubscriber(string name)
+        {
+            _name = name;
+        }
+
+        // 콜백 함수
+        public void Callback()
+        {
+            Console.WriteLine($"{_name} called.");
+        }
+    }
+}
+ ```
