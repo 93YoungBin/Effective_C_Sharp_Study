@@ -102,3 +102,70 @@ class Program
     }
 }
   ```
+
+ ## Delegate Multicast
+  - 하나의 이벤트에 대해 여러 개의 메서드를 등록할 수 있는 기능
+  - 코드의 유연성이 높아지나, 예외처리 및 메모리 누수등의 이슈가 발생할 수 있음
+ 
+  - 델리게이트의 반환값은 마지막 호출 함수의 반환값이 된다
+ ```
+ delegate int Calculator(int x, int y);
+
+class Program
+{
+    static int Add(int x, int y)
+    {
+        Console.WriteLine($"Adding {x} and {y}");
+        return x + y;
+    }
+
+    static int Multiply(int x, int y)
+    {
+        Console.WriteLine($"Multiplying {x} and {y}");
+        return x * y;
+    }
+
+    static void Main(string[] args)
+    {
+        Calculator calc = Add;
+        calc += Multiply;
+
+        int result = calc(3, 4);
+        
+        Console.WriteLine($"Result = {result}");
+        //result = 12
+    }
+}
+ ```
+ 
+ ```
+ public void LegthyOperation(Func<bool> pred)
+ {
+    foreach (ComplicatedClass cl in container)
+    {
+       cl.DoLegthyOperation();
+       if(pred == false)
+       return;
+    }
+  }
+ ```
+ 멀티캐스트로 사용 시 에러 발생
+ 
+ ```
+ Func<bool> cp = () => CheckWithUser();
+ cp += () => CheckWithSystem();
+ c.LegthyOperation(cp);
+ // 해당 경우 CheckWithUser가 false더라도 CheckWithSystem이 True면 정상 작동
+ ```
+ 
+ ```
+ public void LegthyOperation(Func<bool> pred)
+ {
+    bool 
+    foreach (ComplicatedClass cl in container)
+    {
+       cl.DoLegthyOperation();
+       if(pred == false)
+       return;
+    }
+  }
