@@ -50,6 +50,8 @@ public static IEnumerable<int> Unique(IEnumerable<int> nums)
 }
 ```
 
+##이터레이터 메서드의 특이점
+
 ```
     void Start()
     {
