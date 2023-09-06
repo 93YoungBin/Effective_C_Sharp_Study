@@ -32,4 +32,34 @@ var answer = (from p in somePeople
 만약 하나이거나 해당되지 않아 null을 반환 받고 싶으면 SingleOrDefault() 를 사용할 수 있다.
 
 ### First
-- 
+- Single과 비슷하나, 가장 첫 번째 것을 반환한다
+- 첫 번째것을 반환하기 때문에 Single과 달리 여러개의 값이 있어도 정상 동작한다.
+```
+var answer = (from p in Forwards
+              where p.GoalsScored > 0
+              orderby p.GoalsScored
+              select p).FirstOrDefault();
+
+var answer2 = (from p in Forwards
+              where p.GoalsScored > 0
+              orderby p.GoalsScored
+              select p).First();
+```
+
+- 만약 n번째의 데이터를 가져오고 싶다면 Skip 을 사용하여 받아올 수 있다.
+
+  ```
+  var answer =  (from p in Forwards
+              where p.GoalsScored > 0
+              orderby p.GoalsScored
+              select p).Skip(2).First();
+  ```
+
+- 해당 방식을 사용하지 않고 Sort를 사용하여 정렬 후 원하는 값을 뽑아내는 방법 도 있다
+- Take 대신 First를 사용한 이유는 정확히 1개의 요소를 가져오려는 의도를 명확하게 하기 위함이다.
+- 쿼리를 구성하기 위한 다른 속성이 있는지, List<T>를 지원하는지, 인덱스 작업을 지원하는지를 확인 후 코드를 구성하는편이 좋다.
+
+정리
+- Single 은 정확히 한 개의 값만 존재해야한다는 뜻
+- SingleOrDefault는 요소가 없거나 한 개만 존재한다는 뜻
+- First나 Last는 시퀀스 중 1개만 가져오려 할 때 필요
